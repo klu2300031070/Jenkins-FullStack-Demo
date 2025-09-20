@@ -1,5 +1,5 @@
 const config = {
-    url: "http://localhost:2100"
+    url: "http://localhost:2030/facultybackend"
 }
 
 export default config;
