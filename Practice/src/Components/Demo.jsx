@@ -1,76 +1,98 @@
 import { useState } from "react";
 import axios from "axios";
+import config from "./config";
 
 export default function Demo() {
-  const [student, setstudent] = useState({ id: "", name: "", branch: "" });
-  const [studentdata, setstudentdata] = useState(null);
+  const [faculty, setfaculty] = useState({ id: "", name: "", dept: "", age: "", mobileno: "" });
+  const [facultydata, setfacultydata] = useState(null);
   const [id, setid] = useState("");
-  const [allstudents, setallstudents] = useState([]); // for storing all students
+  const [allfaculty, setallfaculty] = useState([]); // for storing all faculty
 
-  const hs = async (e) => {
+  // Add faculty
+   const baseUrl = `${config.url}`;
+  const handleAdd = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:2030/springbootbackend/add", student);
-      alert("Added");
-      setstudent({ id: "", name: "", branch: "" });
+      await axios.post(`${baseUrl}/add`, faculty);
+      alert("Faculty Added");
+      setfaculty({ id: "", name: "", dept: "", age: "", mobileno: "" });
     } catch (err) {
       console.log("error", err);
     }
   };
 
+  // Handle change for form inputs
   const hc = (e) => {
-    setstudent({ ...student, [e.target.name]: e.target.value });
+    setfaculty({ ...faculty, [e.target.name]: e.target.value });
   };
 
+  // View all faculty
   const handleViewAll = async () => {
     try {
-      const res = await axios.get("http://localhost:2030/springbootbackend/viewall");
-      setallstudents(res.data);
+      const res = await axios.get(`${baseUrl}/viewall`);
+      setallfaculty(res.data);
     } catch (err) {
-      console.log("Error fetching all students", err);
+      console.log("Error fetching all faculty", err);
     }
   };
 
+  // Delete faculty
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:2030/springbootbackend/delete/${id}`);
-      alert(`Student with id ${id} deleted`);
+      await axios.delete(`${baseUrl}/delete/${id}`);
+      alert(`Faculty with id ${id} deleted`);
       // Refresh the table
       handleViewAll();
     } catch (err) {
-      console.log("Error deleting student", err);
+      console.log("Error deleting faculty", err);
     }
   };
 
   return (
     <div className="app-container">
       <h1 className="title">CI/CD</h1>
-      <h2 className="title">Student Management</h2>
+      <h2 className="title">Faculty Management</h2>
 
-      {/* Add Student Form */}
-      <form className="form-container" onSubmit={hs}>
-        <h3 className="form-title">Add Student</h3>
+      {/* Add Faculty Form */}
+      <form className="form-container" onSubmit={handleAdd}>
+        <h3 className="form-title">Add Faculty</h3>
         <input
           type="number"
           placeholder="Enter Id"
           name="id"
-          value={student.id}
-          onChange={hc}
+          value={faculty.id}
+          onChange={(e) => setfaculty({ ...faculty, id: Number(e.target.value) })}
           className="input-field"
         />
         <input
           type="text"
           placeholder="Enter Name"
           name="name"
-          value={student.name}
+          value={faculty.name}
           onChange={hc}
           className="input-field"
         />
         <input
           type="text"
-          placeholder="Enter Branch"
-          name="branch"
-          value={student.branch}
+          placeholder="Enter Department"
+          name="dept"
+          value={faculty.dept}
+          onChange={hc}
+          className="input-field"
+        />
+        <input
+          type="number"
+          placeholder="Enter Age"
+          name="age"
+          value={faculty.age}
+          onChange={hc}
+          className="input-field"
+        />
+        <input
+          type="text"
+          placeholder="Enter Mobile Number"
+          name="mobileno"
+          value={faculty.mobileno}
           onChange={hc}
           className="input-field"
         />
@@ -79,16 +101,16 @@ export default function Demo() {
         </button>
       </form>
 
-      {/* View Student Form */}
+      {/* View Faculty Form */}
       <form
         className="form-container"
         onSubmit={async (e) => {
           e.preventDefault();
           try {
             const res = await axios.get(
-              `http://localhost:2030/springbootbackend/view?s=${id}`
+              `${baseUrl}/view?s=${id}`
             );
-            setstudentdata(res.data);
+            setfacultydata(res.data);
 
             if (!res.data) {
               alert("Not Found");
@@ -102,7 +124,7 @@ export default function Demo() {
           }
         }}
       >
-        <h3 className="form-title">View Student</h3>
+        <h3 className="form-title">View Faculty</h3>
         <input
           type="number"
           value={id}
@@ -115,51 +137,61 @@ export default function Demo() {
         </button>
       </form>
 
-      {/* Display Single Student Data */}
-      {studentdata && (
-        <div className="student-card">
+      {/* Display Single Faculty Data */}
+      {facultydata && (
+        <div className="faculty-card">
           <p>
-            <span>Id:</span> {studentdata.id}
+            <span>Id:</span> {facultydata.id}
           </p>
           <p>
-            <span>Name:</span> {studentdata.name}
+            <span>Name:</span> {facultydata.name}
           </p>
           <p>
-            <span>Branch:</span> {studentdata.branch}
+            <span>Department:</span> {facultydata.dept}
+          </p>
+          <p>
+            <span>Age:</span> {facultydata.age}
+          </p>
+          <p>
+            <span>Mobile:</span> {facultydata.mobileno}
           </p>
         </div>
       )}
 
-      {/* View All Students */}
+      {/* View All Faculty */}
       <div className="form-container">
-        <h3 className="form-title">View All Students</h3>
+        <h3 className="form-title">View All Faculty</h3>
         <button onClick={handleViewAll} className="btn">
-          Load All Students
+          Load All Faculty
         </button>
       </div>
 
-      {/* Display All Students in Table */}
-      {allstudents.length > 0 && (
-        <table border="1" className="student-table">
+      {/* Display All Faculty in Table */}
+      {allfaculty.length > 0 && (
+        <table border="1" className="faculty-table">
           <thead>
             <tr>
               <th>Id</th>
               <th>Name</th>
-              <th>Branch</th>
+              <th>Dept</th>
+              <th>Age</th>
+              <th>Mobile</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {allstudents.map((s) => (
-              <tr key={s.id}>
-                <td>{s.id}</td>
-                <td>{s.name}</td>
-                <td>{s.branch}</td>
+            {allfaculty.map((f) => (
+              <tr key={f.id}>
+                <td>{f.id}</td>
+                <td>{f.name}</td>
+                <td>{f.dept}</td>
+                <td>{f.age}</td>
+                <td>{f.mobileno}</td>
                 <td>
                   <button
                     className="btn"
                     style={{ background: "red" }}
-                    onClick={() => handleDelete(s.id)}
+                    onClick={() => handleDelete(f.id)}
                   >
                     Delete
                   </button>
