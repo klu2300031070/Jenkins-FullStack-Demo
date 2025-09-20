@@ -59,7 +59,7 @@
 	</dependencies>
 
 	<build>
-	<finalName>facultybackend</finalName>
+	<finalName>facbackend</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
