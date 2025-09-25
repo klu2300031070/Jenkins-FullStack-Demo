@@ -1,21 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import config from "./config";
 
 export default function Demo() {
-  const [faculty, setfaculty] = useState({ id: "", name: "", dept: "", age: "", mobileno: "" });
+  const [faculty, setfaculty] = useState({
+    id: "",
+    name: "",
+    dept: "",
+    age: "",
+    mobileno: "",
+  });
   const [facultydata, setfacultydata] = useState(null);
   const [id, setid] = useState("");
   const [allfaculty, setallfaculty] = useState([]); // for storing all faculty
 
+  const baseUrl = `${config.url}`;
+
+  // Fetch all faculty (reusable function)
+  const fetchAllFaculty = async () => {
+    try {
+      const res = await axios.get(`${baseUrl}/viewall`);
+      setallfaculty(res.data);
+    } catch (err) {
+      console.log("Error fetching all faculty", err);
+    }
+  };
+
+  // Run on component mount
+  useEffect(() => {
+    fetchAllFaculty();
+  }, []);
+
   // Add faculty
-   const baseUrl = `${config.url}`;
   const handleAdd = async (e) => {
     e.preventDefault();
     try {
       await axios.post(`${baseUrl}/add`, faculty);
       alert("Faculty Added");
       setfaculty({ id: "", name: "", dept: "", age: "", mobileno: "" });
+      fetchAllFaculty(); // refresh list
     } catch (err) {
       console.log("error", err);
     }
@@ -26,23 +49,12 @@ export default function Demo() {
     setfaculty({ ...faculty, [e.target.name]: e.target.value });
   };
 
-  // View all faculty
-  const handleViewAll = async () => {
-    try {
-      const res = await axios.get(`${baseUrl}/viewall`);
-      setallfaculty(res.data);
-    } catch (err) {
-      console.log("Error fetching all faculty", err);
-    }
-  };
-
   // Delete faculty
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${baseUrl}/delete/${id}`);
       alert(`Faculty with id ${id} deleted`);
-      // Refresh the table
-      handleViewAll();
+      fetchAllFaculty(); // refresh list
     } catch (err) {
       console.log("Error deleting faculty", err);
     }
@@ -61,7 +73,9 @@ export default function Demo() {
           placeholder="Enter Id"
           name="id"
           value={faculty.id}
-          onChange={(e) => setfaculty({ ...faculty, id: Number(e.target.value) })}
+          onChange={(e) =>
+            setfaculty({ ...faculty, id: Number(e.target.value) })
+          }
           className="input-field"
         />
         <input
@@ -107,9 +121,7 @@ export default function Demo() {
         onSubmit={async (e) => {
           e.preventDefault();
           try {
-            const res = await axios.get(
-              `${baseUrl}/view?s=${id}`
-            );
+            const res = await axios.get(`${baseUrl}/view?s=${id}`);
             setfacultydata(res.data);
 
             if (!res.data) {
@@ -157,14 +169,6 @@ export default function Demo() {
           </p>
         </div>
       )}
-
-      {/* View All Faculty */}
-      <div className="form-container">
-        <h3 className="form-title">View All Faculty</h3>
-        <button onClick={handleViewAll} className="btn">
-          Load All Faculty
-        </button>
-      </div>
 
       {/* Display All Faculty in Table */}
       {allfaculty.length > 0 && (
