@@ -1,0 +1,6 @@
+INDEX VERSION 1.4+C:\3-1 Semester\EXAM-FULL-STACK - Copy\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+1248317941.index
+606275582.index
+1970252252.index
+2710717888.index
+2528708489.index
